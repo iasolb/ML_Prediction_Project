@@ -1,0 +1,6 @@
+{
+  "venvPath": ".",
+  "venv": ".venv",
+  "reportExplicitAny": false,
+  "typeCheckerMode": "basic"
+}

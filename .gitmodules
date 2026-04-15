@@ -1,0 +1,6 @@
+[submodule "FRED_Loader"]
+	path = FRED_Loader
+	url = https://github.com/iasolb/FRED_Loader.git
+[submodule "ResearchFramework"]
+	path = ResearchFramework
+	url = https://github.com/iasolb/ResearchFramework.git
