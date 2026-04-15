@@ -1,0 +1,11 @@
+pandas>=1.5
+numpy>=1.23
+geopandas
+scipy>=1.11
+# Visualization (external plotter module)
+plotly>=5.18
+kaleido>=0.2
+# Optional — needed for example workflows
+statsmodels>=0.14
+scikit-learn>=1.3
+pytest>=7.0

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+tests/__pycache__
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files — don't commit datasets
+*.csv
+*.xlsx
+*.pkl
+*.parquet
+*.feather
+*.h5
+*.hdf5
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+# pytest
+.pytest_cache/
+
+# new transforms
+
+src/

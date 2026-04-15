@@ -7,4 +7,3 @@ statsmodels
 seaborn
 matplotlib
 plotly
-git+https://github.com/iasolb/ResearchFramework.git
