@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 
 from FRED_Loader.load import pull_fred
@@ -17,13 +19,15 @@ SERIES_OF_INTEREST = {**ALL_SERIES}
 SUBSET_FILENAME: str = "fred_subset.csv"
 
 # ── Dependent variable ────────────────────────────────────────────────
-DEPENDENT: str = "Avg_Weekly_Earnings"
+DEPENDENT_RAW: str = "Avg_Weekly_Earnings"
+DEPENDENT: str = "Avg_Weekly_Earnings_YoY"
+YOY_WINDOW: int = 52  # weeks
 
 # ── Features to study ─────────────────────────────────────────────────
 # fmt: off
 COLUMNS_TO_STUDY: list[str] = [
     "date",
-    DEPENDENT,
+    DEPENDENT_RAW,
 
     # ── Labor Market Tightness ── (FRED) ──────────────────────────────
     "Unemployment_Rate",              # UNRATE
@@ -81,9 +85,6 @@ COLUMNS_TO_STUDY: list[str] = [
     # ── Demographics ── (FRED) ────────────────────────────────────────
     "Working_Age_Population",         # LFWA64TTUSM647S
 
-    # ── Leading Signals ── (FRED) ─────────────────────────────────────
-    # (Leading_Index_CB already listed above)
-
     # ── Leading Signals ── (scored) ───────────────────────────────────
     "Sentiment_Lag_13w",              # UMich sentiment lagged 13w (from UMich_Consumer_Sentiment)
 
@@ -98,7 +99,28 @@ def _transform(src: pd.DataFrame) -> pd.DataFrame:
     if missing:
         print(f"\n⚠  Missing columns (will be NaN): {missing}")
     present = [c for c in COLUMNS_TO_STUDY if c in src.columns]
-    return pd.DataFrame(src[present]).copy()
+    df = pd.DataFrame(src[present]).copy()
+
+    # ── Trim to present ───────────────────────────────────────────────
+    if "date" in df.columns:
+        df["date"] = pd.to_datetime(df["date"])
+        today = pd.Timestamp(datetime.now().date())
+        before = len(df)
+        df = df[df["date"] <= today]
+        n_dropped = before - len(df)
+        if n_dropped > 0:
+            print(f"  ✓ Trimmed {n_dropped} future rows (cutoff {today.date()})")
+
+    # ── YoY transform on dependent ────────────────────────────────────
+    if DEPENDENT_RAW in df.columns:
+        df[DEPENDENT] = df[DEPENDENT_RAW].pct_change(YOY_WINDOW) * 100
+        df = df.drop(columns=[DEPENDENT_RAW])
+        df = df.dropna(subset=[DEPENDENT])
+        print(
+            f"  ✓ Created {DEPENDENT} (52w pct change), dropped first {YOY_WINDOW} rows"
+        )
+
+    return df
 
 
 def get_research_subset(source: str) -> None:
@@ -124,10 +146,8 @@ def main():
         )
 
         _ = pull_fred(config=cfg, apply_scores=APPLY_SCORES)
-        source_path = OUTPUT_PATH + FILENAME
-    else:
-        source_path = OUTPUT_PATH + FILENAME
 
+    source_path = OUTPUT_PATH + FILENAME
     get_research_subset(source=source_path)
 
 
