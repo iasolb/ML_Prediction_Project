@@ -10,7 +10,7 @@
 
 This project investigates whether observable macroeconomic indicators can predict the year-over-year growth rate of U.S. average weekly earnings. Using 32 features drawn from the Federal Reserve Economic Data (FRED) API — spanning labor markets, inflation, monetary policy, financial conditions, housing, and output — we train and evaluate three regression models on weekly data from 2007 through 2026.
 
-The central finding is that **macro indicators have strong contemporaneous correlation with wage growth but limited out-of-sample predictive power**. Under temporally honest evaluation (training on the past, testing on the future), all three models produce negative $R^2$, meaning they predict worse than a naive historical-mean baseline. This result is consistent across multiple temporal cross-validation windows and reflects the regime-dependent, non-stationary nature of the macro-to-earnings relationship.
+The central finding is that **macro indicators have strong contemporaneous correlation with wage growth but limited out-of-sample predictive power**. Under temporally honest evaluation (training on the past, testing on the future), all three models produce negative $R^{2}$, meaning they predict worse than a naive historical-mean baseline. This result is consistent across multiple temporal cross-validation windows and reflects the regime-dependent, non-stationary nature of the macro-to-earnings relationship.
 
 The project includes a Streamlit dashboard with interactive model comparison, a what-if feature explorer, Monte Carlo simulation of forecast distributions, and macroeconomic scenario analysis powered by a custom Gaussian copula simulation framework.
 
@@ -75,25 +75,25 @@ The `macro_scores.py` module applies 56 registered scoring blocks that produce d
 
 **Derived series** — year-over-year rates, annualized short-window growth, real rates, labor market ratios:
 
-$$\text{CPI\_YoY}_t = \frac{\text{CPI}_t - \text{CPI}_{t-52}}{\text{CPI}_{t-52}} \times 100$$
+$$\text{CPI YoY}\_{t} = \frac{\text{CPI}\_{t} - \text{CPI}\_{t-52}}{\text{CPI}\_{t-52}} \times 100$$
 
-$$\text{Real\_FFR\_PCE}_t = \text{FedFunds}_t - \text{Core\_PCE\_YoY}_t$$
+$$\text{Real FFR PCE}\_{t} = \text{FedFunds}\_{t} - \text{Core PCE YoY}\_{t}$$
 
-$$\text{JOLTS\_UE\_Ratio}_t = \frac{\text{Job Openings}_t}{\text{Unemployment Rate}_t \times \text{Labor Force} / 100}$$
+$$\text{JOLTS UE Ratio}\_{t} = \frac{\text{Job Openings}\_{t}}{\text{Unemployment Rate}\_{t} \times \text{Labor Force} / 100}$$
 
 **Regime flags** — binary indicators for yield curve inversion, Sahm rule trigger, high-yield stress, inflation de-anchoring:
 
-$$\text{Flag\_Sahm}_t = \mathbb{1}\left[\bar{U}_{t}^{(13w)} - \min_{s \in [t-52, t]} U_s \geq 0.50\right]$$
+$$\text{Flag Sahm}\_{t} = \mathbb{1}\left[\bar{U}\_{t}^{(13w)} - \min\_{s \in [t-52, t]} U\_{s} \geq 0.50\right]$$
 
 **Continuous scores** — Taylor rule gap, mandate tension, housing pressure, activity momentum:
 
-$$\text{Taylor}_t = r^* + \pi_t + 0.5(\pi_t - \pi^*) + 0.5(u^* - u_t)$$
+$$\text{Taylor}\_{t} = r^{*} + \pi\_{t} + 0.5(\pi\_{t} - \pi^{*}) + 0.5(u^{*} - u\_{t})$$
 
-$$\text{Taylor\_Gap}_t = \text{Taylor}_t - \text{FFR}_t$$
+$$\text{Taylor Gap}\_{t} = \text{Taylor}\_{t} - \text{FFR}\_{t}$$
 
-$$\text{Activity\_Momentum}_t = \frac{1}{|S|}\sum_{s \in S} \frac{x_{s,t} - \bar{x}_{s}^{(156w)}}{\sigma_{s}^{(156w)}}$$
+$$\text{Activity Momentum}\_{t} = \frac{1}{|S|}\sum\_{s \in S} \frac{x\_{s,t} - \bar{x}\_{s}^{(156w)}}{\sigma\_{s}^{(156w)}}$$
 
-where $S = \{\text{Industrial Production, Retail Sales, PCE, Payrolls}\}$.
+where $S = \lbrace\text{Industrial Production, Retail Sales, PCE, Payrolls}\rbrace$.
 
 **Lead/lag signals** — shifted series for predictive analysis (e.g., M2 growth lagged 78 weeks against future inflation).
 
@@ -101,9 +101,9 @@ where $S = \{\text{Industrial Production, Retail Sales, PCE, Payrolls}\}$.
 
 `get_data.py` extracts a 34-column research subset from the full dataset, applies a `datetime.now()` trim to remove forward-filled stale observations beyond the last real FRED release, and computes the year-over-year dependent variable:
 
-$$y_t = \frac{E_t - E_{t-52}}{E_{t-52}} \times 100$$
+$$y\_{t} = \frac{E\_{t} - E\_{t-52}}{E\_{t-52}} \times 100$$
 
-where $E_t$ is Average Weekly Earnings (BLS series CES0500000011) at week $t$.
+where $E\_{t}$ is Average Weekly Earnings (BLS series CES0500000011) at week $t$.
 
 ---
 
@@ -154,7 +154,7 @@ Temporal split at 80/20: training on all observations up to July 2022, testing o
 
 Ordinary least squares minimizes the sum of squared residuals with no regularization:
 
-$$\hat{\boldsymbol{\beta}} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y}$$
+$$\hat{\boldsymbol{\beta}} = (\mathbf{X}^{\top} \mathbf{X})^{-1} \mathbf{X}^{\top} \mathbf{y}$$
 
 $$\hat{y} = \mathbf{X}\hat{\boldsymbol{\beta}}$$
 
@@ -162,29 +162,29 @@ This provides a closed-form solution and serves as the interpretability baseline
 
 **Model 2 — Ridge Regression**
 
-Ridge adds an $L_2$ penalty to shrink coefficients toward zero, reducing variance at the cost of some bias:
+Ridge adds an $L\_{2}$ penalty to shrink coefficients toward zero, reducing variance at the cost of some bias:
 
-$$\hat{\boldsymbol{\beta}}_{\text{ridge}} = (\mathbf{X}^\top \mathbf{X} + \alpha \mathbf{I})^{-1} \mathbf{X}^\top \mathbf{y}$$
+$$\hat{\boldsymbol{\beta}}\_{\text{ridge}} = (\mathbf{X}^{\top} \mathbf{X} + \alpha \mathbf{I})^{-1} \mathbf{X}^{\top} \mathbf{y}$$
 
 where $\alpha = 1.0$. The penalty discourages large coefficients, which helps when features are correlated. In practice, Ridge performed nearly identically to OLS, indicating multicollinearity was not a significant issue in the 12-feature set.
 
 **Model 3 — Gradient Boosting Regressor**
 
-An ensemble of sequential shallow decision trees where each tree $h_m$ fits the residuals of the cumulative ensemble:
+An ensemble of sequential shallow decision trees where each tree $h\_{m}$ fits the residuals of the cumulative ensemble:
 
-$$F_0(\mathbf{x}) = \bar{y}$$
+$$F\_{0}(\mathbf{x}) = \bar{y}$$
 
-$$F_m(\mathbf{x}) = F_{m-1}(\mathbf{x}) + \eta \cdot h_m(\mathbf{x})$$
+$$F\_{m}(\mathbf{x}) = F\_{m-1}(\mathbf{x}) + \eta \cdot h\_{m}(\mathbf{x})$$
 
 where $\eta = 0.03$ is the learning rate, each tree has `max_depth=3`, and `n_estimators=200` with `subsample=0.8` for stochastic gradient boosting. The model captures nonlinear interactions and regime-dependent feature effects that linear models miss.
 
 ### Evaluation metrics
 
-$$\text{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}$$
+$$\text{RMSE} = \sqrt{\frac{1}{n}\sum\_{i=1}^{n}(y\_{i} - \hat{y}\_{i})^{2}}$$
 
-$$R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}$$
+$$R^{2} = 1 - \frac{\sum\_{i=1}^{n}(y\_{i} - \hat{y}\_{i})^{2}}{\sum\_{i=1}^{n}(y\_{i} - \bar{y})^{2}}$$
 
-Negative $R^2$ indicates the model predicts worse than simply guessing the training-set mean $\bar{y}$ for every observation.
+Negative $R^{2}$ indicates the model predicts worse than simply guessing the training-set mean $\bar{y}$ for every observation.
 
 ### Cross-validation
 
@@ -196,31 +196,31 @@ Negative $R^2$ indicates the model predicts worse than simply guessing the train
 
 ### Test set performance (temporal split, with lag features)
 
-| Model | RMSE | MAE | $R^2$ |
-|-------|------|-----|-------|
+| Model | RMSE | MAE | $R^{2}$ |
+|-------|------|-----|---------|
 | OLS | 0.3977 | 0.3169 | 0.011 |
-| Ridge ($\alpha=1.0$) | 0.3965 | 0.3162 | 0.017 |
+| Ridge ( $\alpha=1.0$ ) | 0.3965 | 0.3162 | 0.017 |
 | GBR | 0.4525 | 0.3763 | -0.280 |
 
 ### TimeSeriesSplit CV (5-fold)
 
-| Model | CV $R^2$ |
-|-------|----------|
+| Model | CV $R^{2}$ |
+|-------|------------|
 | OLS | $-2.92 \pm 1.92$ |
 | Ridge | $-2.06 \pm 1.23$ |
 | GBR | $-1.51 \pm 1.21$ |
 
 ### Key findings
 
-1. **All models produce negative $R^2$ on temporally honest evaluation.** Macro features correlate with wage growth contemporaneously but do not reliably predict future wage growth out of sample.
+1. **All models produce negative $R^{2}$ on temporally honest evaluation.** Macro features correlate with wage growth contemporaneously but do not reliably predict future wage growth out of sample.
 
-2. **GBR overfits on random splits ($R^2 = 0.99$) but performs worst on temporal splits ($R^2 = -0.28$).** Tree-based models memorize training-era patterns that invert during regime shifts. Linear models extrapolate more gracefully.
+2. **GBR overfits on random splits ( $R^{2} = 0.99$ ) but performs worst on temporal splits ( $R^{2} = -0.28$ ).** Tree-based models memorize training-era patterns that invert during regime shifts. Linear models extrapolate more gracefully.
 
 3. **Autoregressive lags are the most useful features.** Adding 4-week and 13-week lagged earnings improved RMSE from 0.48 to 0.40. The best predictor of next quarter's wage growth is this quarter's wage growth.
 
 4. **Feature importance is dominated by Labor_Force_Participation (~58% Gini importance), followed by the lag features.** U6_Underemployment is the only macro feature contributing meaningful signal beyond autoregression.
 
-5. **Performance variance across CV folds is enormous** ($\pm 1.2$ to $\pm 1.9$), confirming the macro-to-earnings relationship is regime-dependent and unstable.
+5. **Performance variance across CV folds is enormous** ( $\pm 1.2$ to $\pm 1.9$ ), confirming the macro-to-earnings relationship is regime-dependent and unstable.
 
 ---
 
@@ -232,11 +232,11 @@ The Streamlit dashboard includes a Monte Carlo forecast engine built on the `Res
 2. **Infer the empirical correlation matrix** from observed feature co-movements
 3. **Draw correlated samples** via the Gaussian copula:
 
-$$\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_k), \quad \mathbf{z}_c = \mathbf{L}\mathbf{z}, \quad \mathbf{u} = \Phi(\mathbf{z}_c)$$
+$$\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}\_{k}), \quad \mathbf{z}\_{c} = \mathbf{L}\mathbf{z}, \quad \mathbf{u} = \Phi(\mathbf{z}\_{c})$$
 
-where $\mathbf{L}$ is the Cholesky decomposition of the correlation matrix and $\Phi$ is the standard normal CDF. Each $u_i \in [0,1]$ is then transformed through the target marginal's inverse CDF:
+where $\mathbf{L}$ is the Cholesky decomposition of the correlation matrix and $\Phi$ is the standard normal CDF. Each $u\_{i} \in [0,1]$ is then transformed through the target marginal's inverse CDF:
 
-$$x_i = F_i^{-1}(u_i)$$
+$$x\_{i} = F\_{i}^{-1}(u\_{i})$$
 
 4. **Run the trained Ridge model** on each simulated draw to produce a distribution of predicted wage growth outcomes
 5. **Report** mean, median, 95% confidence interval, and convergence diagnostics
