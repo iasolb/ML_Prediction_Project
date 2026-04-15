@@ -87,7 +87,6 @@ $$\textrm{Flag\ Sahm}_{t} = \mathbb{1}\left[\bar{U}_{t}^{(13w)} - \min_{s \in [t
 
 **Continuous scores** — Taylor rule gap, mandate tension, housing pressure, activity momentum:
 
-$$\textrm{Taylor}_{t} = r^{*} + \pi_{t} + 0.5(\pi_{t} - \pi^{*}) + 0.5(u^{*} - u_{t})$$
 
 $$\textrm{Taylor\ Gap}_{t} = \textrm{Taylor}_{t} - \textrm{FFR}_{t}$$
 
