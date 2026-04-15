@@ -75,25 +75,25 @@ The `macro_scores.py` module applies 56 registered scoring blocks that produce d
 
 **Derived series** — year-over-year rates, annualized short-window growth, real rates, labor market ratios:
 
-$$\text{CPI YoY}\_{t} = \frac{\text{CPI}\_{t} - \text{CPI}\_{t-52}}{\text{CPI}\_{t-52}} \times 100$$
+$$\textrm{CPI\ YoY}_{t} = \frac{\textrm{CPI}_{t} - \textrm{CPI}_{t-52}}{\textrm{CPI}_{t-52}} \times 100$$
 
-$$\text{Real FFR PCE}\_{t} = \text{FedFunds}\_{t} - \text{Core PCE YoY}\_{t}$$
+$$\textrm{Real\ FFR\ PCE}_{t} = \textrm{FedFunds}_{t} - \textrm{Core\ PCE\ YoY}_{t}$$
 
-$$\text{JOLTS UE Ratio}\_{t} = \frac{\text{Job Openings}\_{t}}{\text{Unemployment Rate}\_{t} \times \text{Labor Force} / 100}$$
+$$\textrm{JOLTS\ UE\ Ratio}_{t} = \frac{\textrm{Job\ Openings}_{t}}{\textrm{Unemployment\ Rate}_{t} \times \textrm{Labor\ Force} / 100}$$
 
 **Regime flags** — binary indicators for yield curve inversion, Sahm rule trigger, high-yield stress, inflation de-anchoring:
 
-$$\text{Flag Sahm}\_{t} = \mathbb{1}\left[\bar{U}\_{t}^{(13w)} - \min\_{s \in [t-52, t]} U\_{s} \geq 0.50\right]$$
+$$\textrm{Flag\ Sahm}_{t} = \mathbb{1}\left[\bar{U}_{t}^{(13w)} - \min_{s \in [t-52,\ t]} U_{s} \geq 0.50\right]$$
 
 **Continuous scores** — Taylor rule gap, mandate tension, housing pressure, activity momentum:
 
-$$\text{Taylor}\_{t} = r^{*} + \pi\_{t} + 0.5(\pi\_{t} - \pi^{*}) + 0.5(u^{*} - u\_{t})$$
+$$\textrm{Taylor}_{t} = r^{*} + \pi_{t} + 0.5(\pi_{t} - \pi^{*}) + 0.5(u^{*} - u_{t})$$
 
-$$\text{Taylor Gap}\_{t} = \text{Taylor}\_{t} - \text{FFR}\_{t}$$
+$$\textrm{Taylor\ Gap}_{t} = \textrm{Taylor}_{t} - \textrm{FFR}_{t}$$
 
-$$\text{Activity Momentum}\_{t} = \frac{1}{|S|}\sum\_{s \in S} \frac{x\_{s,t} - \bar{x}\_{s}^{(156w)}}{\sigma\_{s}^{(156w)}}$$
+$$\textrm{Activity\ Momentum}_{t} = \frac{1}{|S|}\sum_{s \in S} \frac{x_{s,t} - \bar{x}_{s}^{(156w)}}{\sigma_{s}^{(156w)}}$$
 
-where $S = \lbrace\text{Industrial Production, Retail Sales, PCE, Payrolls}\rbrace$.
+where $S$ = {Industrial Production, Retail Sales, PCE, Payrolls}.
 
 **Lead/lag signals** — shifted series for predictive analysis (e.g., M2 growth lagged 78 weeks against future inflation).
 
@@ -101,9 +101,9 @@ where $S = \lbrace\text{Industrial Production, Retail Sales, PCE, Payrolls}\rbra
 
 `get_data.py` extracts a 34-column research subset from the full dataset, applies a `datetime.now()` trim to remove forward-filled stale observations beyond the last real FRED release, and computes the year-over-year dependent variable:
 
-$$y\_{t} = \frac{E\_{t} - E\_{t-52}}{E\_{t-52}} \times 100$$
+$$y_{t} = \frac{E_{t} - E_{t-52}}{E_{t-52}} \times 100$$
 
-where $E\_{t}$ is Average Weekly Earnings (BLS series CES0500000011) at week $t$.
+where $E_{t}$ is Average Weekly Earnings (BLS series CES0500000011) at week $t$.
 
 ---
 
@@ -162,27 +162,27 @@ This provides a closed-form solution and serves as the interpretability baseline
 
 **Model 2 — Ridge Regression**
 
-Ridge adds an $L\_{2}$ penalty to shrink coefficients toward zero, reducing variance at the cost of some bias:
+Ridge adds an $L_{2}$ penalty to shrink coefficients toward zero, reducing variance at the cost of some bias:
 
-$$\hat{\boldsymbol{\beta}}\_{\text{ridge}} = (\mathbf{X}^{\top} \mathbf{X} + \alpha \mathbf{I})^{-1} \mathbf{X}^{\top} \mathbf{y}$$
+$$\hat{\boldsymbol{\beta}}_{\textrm{ridge}} = (\mathbf{X}^{\top} \mathbf{X} + \alpha \mathbf{I})^{-1} \mathbf{X}^{\top} \mathbf{y}$$
 
 where $\alpha = 1.0$. The penalty discourages large coefficients, which helps when features are correlated. In practice, Ridge performed nearly identically to OLS, indicating multicollinearity was not a significant issue in the 12-feature set.
 
 **Model 3 — Gradient Boosting Regressor**
 
-An ensemble of sequential shallow decision trees where each tree $h\_{m}$ fits the residuals of the cumulative ensemble:
+An ensemble of sequential shallow decision trees where each tree $h_{m}$ fits the residuals of the cumulative ensemble:
 
-$$F\_{0}(\mathbf{x}) = \bar{y}$$
+$$F_{0}(\mathbf{x}) = \bar{y}$$
 
-$$F\_{m}(\mathbf{x}) = F\_{m-1}(\mathbf{x}) + \eta \cdot h\_{m}(\mathbf{x})$$
+$$F_{m}(\mathbf{x}) = F_{m-1}(\mathbf{x}) + \eta \cdot h_{m}(\mathbf{x})$$
 
 where $\eta = 0.03$ is the learning rate, each tree has `max_depth=3`, and `n_estimators=200` with `subsample=0.8` for stochastic gradient boosting. The model captures nonlinear interactions and regime-dependent feature effects that linear models miss.
 
 ### Evaluation metrics
 
-$$\text{RMSE} = \sqrt{\frac{1}{n}\sum\_{i=1}^{n}(y\_{i} - \hat{y}\_{i})^{2}}$$
+$$\textrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_{i} - \hat{y}_{i})^{2}}$$
 
-$$R^{2} = 1 - \frac{\sum\_{i=1}^{n}(y\_{i} - \hat{y}\_{i})^{2}}{\sum\_{i=1}^{n}(y\_{i} - \bar{y})^{2}}$$
+$$R^{2} = 1 - \frac{\sum_{i=1}^{n}(y_{i} - \hat{y}_{i})^{2}}{\sum_{i=1}^{n}(y_{i} - \bar{y})^{2}}$$
 
 Negative $R^{2}$ indicates the model predicts worse than simply guessing the training-set mean $\bar{y}$ for every observation.
 
@@ -232,11 +232,11 @@ The Streamlit dashboard includes a Monte Carlo forecast engine built on the `Res
 2. **Infer the empirical correlation matrix** from observed feature co-movements
 3. **Draw correlated samples** via the Gaussian copula:
 
-$$\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}\_{k}), \quad \mathbf{z}\_{c} = \mathbf{L}\mathbf{z}, \quad \mathbf{u} = \Phi(\mathbf{z}\_{c})$$
+$$\mathbf{z} \sim \mathcal{N}(\mathbf{0}, \mathbf{I}_{k}), \quad \mathbf{z}_{c} = \mathbf{L}\mathbf{z}, \quad \mathbf{u} = \Phi(\mathbf{z}_{c})$$
 
-where $\mathbf{L}$ is the Cholesky decomposition of the correlation matrix and $\Phi$ is the standard normal CDF. Each $u\_{i} \in [0,1]$ is then transformed through the target marginal's inverse CDF:
+where $\mathbf{L}$ is the Cholesky decomposition of the correlation matrix and $\Phi$ is the standard normal CDF. Each $u_{i} \in [0,1]$ is then transformed through the target marginal's inverse CDF:
 
-$$x\_{i} = F\_{i}^{-1}(u\_{i})$$
+$$x_{i} = F_{i}^{-1}(u_{i})$$
 
 4. **Run the trained Ridge model** on each simulated draw to produce a distribution of predicted wage growth outcomes
 5. **Report** mean, median, 95% confidence interval, and convergence diagnostics
