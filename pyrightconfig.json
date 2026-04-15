@@ -2,5 +2,5 @@
   "venvPath": ".",
   "venv": ".venv",
   "reportExplicitAny": false,
-  "typeCheckerMode": "basic"
+  "typeCheckingMode": "basic"
 }
