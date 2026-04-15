@@ -124,7 +124,7 @@ page = st.sidebar.radio(
 )
 st.sidebar.markdown("---")
 st.sidebar.markdown(
-    "**CS 3916 ML Final Project**  \nIan Solberg, April 2026  \nData: FRED Economic Data"
+    "**ECON3916 Stats + Machine Learning Final Project**  \nIan Solberg, April 2026  \nData: FRED Economic Data"
 )
 
 
