@@ -16,7 +16,7 @@ import streamlit as st
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 sys.path.insert(0, os.path.dirname(__file__))
-from .distro import IMPORTANT_COLUMNS, get_data
+from distro import IMPORTANT_COLUMNS, get_data
 from .ResearchFramework.simulation import (
     ConvergenceDiagnostics,
     InputManager,
