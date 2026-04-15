@@ -211,3 +211,6 @@ __marimo__/
 # Large Data
 
 data/fred_data.csv
+
+# Local configuration files
+pyrightconfig.json

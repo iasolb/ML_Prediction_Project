@@ -1,6 +1,0 @@
-{
-  "venvPath": ".",
-  "venv": ".venv",
-  "reportExplicitAny": false,
-  "typeCheckingMode": "basic"
-}
