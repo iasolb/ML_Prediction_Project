@@ -3,12 +3,12 @@
 A machine learning investigation of whether observable macroeconomic
 indicators can predict the year-over-year growth rate of U.S. average weekly
 earnings, with a live Streamlit dashboard. CS 3916 Machine Learning final
-project — Ian Solberg, April 2026.
+project by Ian Solberg, April 2026.
 
 The central finding: **macro indicators have strong contemporaneous
 correlation with wage growth but limited out-of-sample predictive power.**
 Under temporally honest evaluation (training on the past, testing on the
-future), all three models produce negative R² — they predict worse than a
+future), all three models produce negative R²: they predict worse than a
 naive historical-mean baseline. The result is consistent across multiple
 temporal cross-validation windows and reflects the regime-dependent,
 non-stationary nature of the macro-to-earnings relationship.
@@ -23,7 +23,7 @@ non-stationary nature of the macro-to-earnings relationship.
 - **Three models:** OLS Linear Regression (baseline), Ridge (α=1.0), and
   Gradient Boosting.
 - **Temporally honest evaluation:** 80/20 temporal split (train through July
-  2022, test July 2022–April 2026, ~788 train / ~197 test) plus 5-fold
+  2022, test July 2022 to April 2026, ~788 train / ~197 test) plus 5-fold
   `TimeSeriesSplit`.
 
 ## Results
@@ -65,16 +65,16 @@ non-stationary nature of the macro-to-earnings relationship.
 
 ## What's here
 
-- `app.py` — Streamlit dashboard (4 pages): interactive model comparison,
+- `app.py`: Streamlit dashboard (4 pages): interactive model comparison,
   a what-if feature explorer, Monte Carlo simulation of forecast
   distributions, and macroeconomic scenario analysis powered by a custom
   Gaussian copula simulation framework.
-- `get_data.py` — FRED data pipeline: pull, score, subset.
-- `FinalProjectNotebook-3916-IanSolberg.ipynb` — main analysis notebook
+- `get_data.py`: FRED data pipeline: pull, score, subset.
+- `FinalProjectNotebook-3916-IanSolberg.ipynb`: main analysis notebook
   (Parts 1-7).
-- `FRED_Loader/` submodule — FRED API data pipeline (229 series, 56 derived
+- `FRED_Loader/` submodule: FRED API data pipeline (229 series, 56 derived
   scoring blocks).
-- `ResearchFramework/` submodule — Monte Carlo simulation engine.
+- `ResearchFramework/` submodule: Monte Carlo simulation engine.
 
 ## Start here
 
@@ -146,7 +146,7 @@ for daily data. The dataset spans **2000-01-07 through present**.
 The `macro_scores.py` module applies 56 registered scoring blocks that
 produce derived columns in four categories:
 
-**Derived series** — year-over-year rates, annualized short-window growth,
+**Derived series**: year-over-year rates, annualized short-window growth,
 real rates, labor market ratios:
 
 $$\textrm{CPI\ YoY}_{t} = \frac{\textrm{CPI}_{t} - \textrm{CPI}_{t-52}}{\textrm{CPI}_{t-52}} \times 100$$
@@ -155,12 +155,12 @@ $$\textrm{Real\ FFR\ PCE}_{t} = \textrm{FedFunds}_{t} - \textrm{Core\ PCE\ YoY}_
 
 $$\textrm{JOLTS\ UE\ Ratio}_{t} = \frac{\textrm{Job\ Openings}_{t}}{\textrm{Unemployment\ Rate}_{t} \times \textrm{Labor\ Force} / 100}$$
 
-**Regime flags** — binary indicators for yield curve inversion, Sahm rule
+**Regime flags**: binary indicators for yield curve inversion, Sahm rule
 trigger, high-yield stress, inflation de-anchoring:
 
 $$\textrm{Flag\ Sahm}_{t} = \mathbb{1}\left[\bar{U}_{t}^{(13w)} - \min_{s \in [t-52,\ t]} U_{s} \geq 0.50\right]$$
 
-**Continuous scores** — Taylor rule gap, mandate tension, housing pressure,
+**Continuous scores**: Taylor rule gap, mandate tension, housing pressure,
 activity momentum:
 
 $$\textrm{Taylor\ Gap}_{t} = \textrm{Taylor}_{t} - \textrm{FFR}_{t}$$
@@ -169,7 +169,7 @@ $$\textrm{Activity\ Momentum}_{t} = \frac{1}{|S|}\sum_{s \in S} \frac{x_{s,t} - 
 
 where $S$ = {Industrial Production, Retail Sales, PCE, Payrolls}.
 
-**Lead/lag signals** — shifted series for predictive analysis (e.g., M2
+**Lead/lag signals**: shifted series for predictive analysis (e.g., M2
 growth lagged 78 weeks against future inflation).
 
 ### Subsetting
@@ -186,7 +186,7 @@ $t$.
 
 ## Dependent variable
 
-**Avg_Weekly_Earnings_YoY** — the year-over-year percent change in average
+**Avg_Weekly_Earnings_YoY**: the year-over-year percent change in average
 weekly earnings for all private-sector employees.
 
 The raw earnings series (`CES0500000011`) begins in March 2006 and is
@@ -236,7 +236,7 @@ post-pandemic wage deceleration) that it has never seen during training.
 
 ### Models
 
-**Model 1 — OLS Linear Regression (baseline).** Ordinary least squares
+**Model 1: OLS Linear Regression (baseline).** Ordinary least squares
 minimizes the sum of squared residuals with no regularization:
 
 $$\hat{\boldsymbol{\beta}} = (\mathbf{X}^{\top} \mathbf{X})^{-1} \mathbf{X}^{\top} \mathbf{y}$$
@@ -246,7 +246,7 @@ $$\hat{y} = \mathbf{X}\hat{\boldsymbol{\beta}}$$
 This provides a closed-form solution and serves as the interpretability
 baseline.
 
-**Model 2 — Ridge Regression.** Ridge adds an $L_{2}$ penalty to shrink
+**Model 2: Ridge Regression.** Ridge adds an $L_{2}$ penalty to shrink
 coefficients toward zero, reducing variance at the cost of some bias:
 
 $$\hat{\boldsymbol{\beta}}_{\textrm{ridge}} = (\mathbf{X}^{\top} \mathbf{X} + \alpha \mathbf{I})^{-1} \mathbf{X}^{\top} \mathbf{y}$$
@@ -255,7 +255,7 @@ where $\alpha = 1.0$. In practice, Ridge performed nearly identically to
 OLS, indicating multicollinearity was not a significant issue in the
 12-feature set.
 
-**Model 3 — Gradient Boosting Regressor.** An ensemble of sequential shallow
+**Model 3: Gradient Boosting Regressor.** An ensemble of sequential shallow
 decision trees where each tree $h_{m}$ fits the residuals of the cumulative
 ensemble:
 
@@ -310,9 +310,9 @@ $$x_{i} = F_{i}^{-1}(u_{i})$$
 Three preset macroeconomic scenarios override specific feature
 distributions while holding others at fitted values:
 
-- **Tight labor market** — low U6, high JOLTS ratio, high employment-population ratio
-- **Recession** — high U6, elevated Sahm indicator, wide HY spreads, low JOLTS ratio
-- **Stagflation** — high Core PCE YoY, elevated U6, wide HY spreads
+- **Tight labor market**: low U6, high JOLTS ratio, high employment-population ratio
+- **Recession**: high U6, elevated Sahm indicator, wide HY spreads, low JOLTS ratio
+- **Stagflation**: high Core PCE YoY, elevated U6, wide HY spreads
 
 The `ScenarioComparator` runs each scenario through the same simulation
 pipeline and produces overlaid forecast distributions for comparison.
